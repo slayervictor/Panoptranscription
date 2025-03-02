@@ -103,11 +103,21 @@ class App(ctk.CTk):
             # Return an empty dictionary if the file doesn't exist
             return {}
 
+    def transcribe(self):
+        audio_file = open("temp.wav", "rb")
+        transcription = self.client.audio.transcriptions.create(
+            model="whisper-1", 
+            file=audio_file, 
+            response_format="text"
+        )
+
+        print(transcription.text)
 
     # Transcribe
     def button_transcribe(self): # Press transcribe button
         try:
-            self.progress = 0
+            self.progress = -1
+            self.update_progress()
             self.chatkey = self.API_textbox.get()
             self.updateAPIKey(self.chatkey)
             self.saveToFile('API_KEY', self.chatkey)
@@ -115,25 +125,25 @@ class App(ctk.CTk):
                 self.update_progress_text(f"File found.")
                 time.sleep(0.25)
                 if self.chatkey: #Check også om chatgpt api key virker først!!!!!! VIGTIGGGG
-                    self.update_progress_text(f"API Key found")
+                    self.update_progress_text(f"API Key found.")
                     time.sleep(0.25)
-                    self.update_progress_text(f"Connecting to OpenAI")
-                    client = OpenAI()
-                    self.update_progress_text(f"Starting Transcription...")
-                    self.update_progress()
+                    self.update_progress_text(f"Connecting to OpenAI.")
+                    self.client = OpenAI()
                     if ".mp4" in str(self.file).lower(): # convert kun hvis .mp4
-                        self.update_progress_text(f"Converting to .wav (may take a while)")
+                        self.update_progress_text(f"Converting to .wav (may take a while).")
                         video = VideoFileClip(self.file)
                         video.audio.write_audiofile("temp.wav", codec='pcm_s16le')
                     self.update_progress()
-
-                    self.update_progress_text(f"Done")
+                    self.update_progress_text(f"Starting Transcription.")
+                    self.transcribe()
+                    self.update_progress()
+                    self.update_progress_text(f"Done.")
                 else:
-                    self.update_progress_text(f"Enter API key first")
+                    self.update_progress_text(f"Enter API key first.")
             else:
                 self.update_progress_text(f"No file selected.")
         except:
-            self.update_progress_text(f"Something went wrong, please try launching with admin perms..")
+            self.update_progress_text(f"Something went wrong! Check if the file is correct and the API key is valid.")
         
     
 
