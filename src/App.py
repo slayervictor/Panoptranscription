@@ -27,7 +27,6 @@ class App(ctk.CTk):
         self.progressbar = ctk.CTkProgressBar(self)
         self.progressbar.grid(row=5, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
         self.progressbar.set(self.progress)  # Set initial value (0 to 1)
-        
         self.progresstext = ""
         self.label = ctk.CTkLabel(self, text=self.progresstext, font=("Consolas", 16))
         self.label.grid(row=6, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
@@ -184,10 +183,10 @@ class App(ctk.CTk):
 
     def transcribe(self):
         # Check if CUDA is available, otherwise fallback to CPU
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        device = ("cpu","cuda")[torch.cuda.is_available()]
 
         # Load the model on the appropriate device
-        model = whisper.load_model("large").to(device)
+        model = whisper.load_model(self.selectedModel).to(device)
 
         # Split audio into chunks
         self.chunks = self.split_audio("temp.wav")
