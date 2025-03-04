@@ -80,6 +80,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+output_chunks
 
 # IPython
 profile_default/
