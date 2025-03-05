@@ -9,7 +9,7 @@ import time
 import json
 import shutil
 import whisper
-
+import re
 
 class App(ctk.CTk):
     def __init__(self):
@@ -89,14 +89,14 @@ class App(ctk.CTk):
                 self.saveToFile('LANGUAGE', "English")
                 self.selectedLanguage = "en"
                 self.disclaimerInstruction = "Only respond with the notes in LaTeX code. Do not respond with any natural language or formatting. "
-                self.generalInstruction = " If some topics are not accurate enough in the transcription, you are welcome to write general notes on the topic. "
+                self.generalInstruction = " If some topics are not accurate enough in the transcription, you are welcome to write general notes on the topic. Make sure to include the most important points from the transcription, and use the terms that are used in the transcription. "
                 self.continueInstruction = "Can you iterate on the following LaTeX math notes with information from this transcription? " + self.generalInstruction
                 self.startInstruction = "Can you create LaTeX math notes from this transcription? " + self.generalInstruction
             case "Danish":
                 self.saveToFile('LANGUAGE', "Danish")
                 self.selectedLanguage = "da"
                 self.disclaimerInstruction = "Kun responder med noterne i latex kode. Ikke responder med noget naturligt sprog eller formattering. "
-                self.generalInstruction = "Hvis nogle emner ikke er akkurat nok i transkribtionen, må du gerne skrive generelle noter om emnet. "
+                self.generalInstruction = "Hvis nogle emner ikke er akkurat nok i transkribtionen, må du gerne skrive generelle noter om emnet. Sørg for at inkludere de vigtigste punkter fra transskriptionen, og brug de termer, der anvendes i transskriptionen. "
                 self.continueInstruction = "Kan du iterere på følgende LaTeX-matematiknoter med information fra denne transkription? " + self.generalInstruction
                 self.startInstruction = "kan du lave latex matematik noter denne transkribtion? " + self.generalInstruction
 
@@ -181,6 +181,44 @@ class App(ctk.CTk):
 
         return chunks
 
+    def clean_tex_document(self, text):
+        # Find the first backslash and trim before it
+        first_backslash = text.find('\\')
+        if first_backslash == -1:
+            return ""  # Return empty if no backslash is found
+        
+        trimmed_text = text[first_backslash:]
+        
+        # Find the last occurrence of '\end{document}' and trim after it
+        match = re.search(r'\\end{document}', trimmed_text, re.DOTALL)
+        if match:
+            trimmed_text = trimmed_text[:match.end()]
+        
+        return trimmed_text
+
+    def save_latex_file(self, content, filename = "main.tex"):
+        # Create output directory if it doesn't exist
+        output_dir = "output"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Define the full file path
+        file_path = os.path.join(output_dir, filename)
+        
+        # Write the content to the .tex file
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write(content)
+        
+        self.update_progress_text(f"LaTeX document saved in {file_path} folder.")
+        try:
+            # Open the output folder
+            if os.name == "nt":  # Windows
+                os.startfile(output_dir)
+            elif os.name == "posix":  # macOS and Linux
+                os.system(f'xdg-open "{output_dir}"' if os.uname().sysname != "Darwin" else f'open "{output_dir}"')
+        except:
+            pass
+        
+
     def transcribe(self):
         # Check if CUDA is available, otherwise fallback to CPU
         device = ("cpu","cuda")[torch.cuda.is_available()]
@@ -206,55 +244,58 @@ class App(ctk.CTk):
         self.update_progress_text("Fully Transcribed")
 
     def chatgpt(self):
-        for i in range(self.results):
+        for i in range(len(self.results)):
             if i == 0:
                 self.INSTRUCTION = self.startInstruction
                 LaTeXCode = ""
             else:
                 self.INSTRUCTION = self.continueInstruction
-                LaTeXCode = str(response.choices[0].message.content)
-
+                
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": self.disclaimerInstruction + self.INSTRUCTION + LaTeXCode + str(self.results[i])}],
                 stream=False,
             )
 
+            LaTeXCode = self.clean_tex_document(str(response.choices[0].message.content))
+
             self.update_progress_text(f"Response #{i} retrieved.")
 
-        print(response.choices[0].message.content)
+        self.save_latex_file(content=LaTeXCode)
 
     # Transcribe & Make LaTeX file
     def button_transcribe(self): # Press transcribe button
-        # Husk at sæt try statement når færdig
-        self.progress = -1
-        self.update_progress()
-        self.chatkey = self.API_textbox.get()
-        self.updateAPIKey(self.chatkey)
-        self.saveToFile('API_KEY', self.chatkey)
-        if self.file:
-            self.update_progress_text(f"File found.")
-            time.sleep(0.25)
-            if self.chatkey: #Check også om chatgpt api key virker først!!!!!! VIGTIGGGG
-                self.update_progress_text(f"API Key found.")
+        try:
+            self.progress = -1
+            self.update_progress()
+            self.chatkey = self.API_textbox.get()
+            self.updateAPIKey(self.chatkey)
+            self.saveToFile('API_KEY', self.chatkey)
+            if self.file:
+                self.update_progress_text(f"File found.")
                 time.sleep(0.25)
-                self.update_progress_text(f"Connecting to OpenAI.")
-                self.client = OpenAI()
-                if ".mp4" in str(self.file).lower(): # convert kun hvis .mp4
-                    self.update_progress_text(f"Converting to .wav (may take a while).")
-                    video = VideoFileClip(self.file)
-                    video.audio.write_audiofile("temp.wav")
-                self.update_progress()
-                self.update_progress_text(f"Starting Transcription.")
-                self.transcribe()
-                self.update_progress()
-                self.update_progress_text(f"Connecting to ChatGPT API")
-                self.chatgpt()
-                self.update_progress()
+                if self.chatkey: 
+                    self.update_progress_text(f"API Key found.")
+                    time.sleep(0.25)
+                    self.update_progress_text(f"Connecting to OpenAI.")
+                    self.client = OpenAI()
+                    if ".mp4" in str(self.file).lower(): 
+                        self.update_progress_text(f"Converting to .wav (may take a while).")
+                        video = VideoFileClip(self.file)
+                        video.audio.write_audiofile("temp.wav")
+                    self.update_progress()
+                    self.update_progress_text(f"Starting Transcription.")
+                    self.transcribe()
+                    self.update_progress()
+                    self.update_progress_text(f"Connecting to ChatGPT API")
+                    self.chatgpt()
+                    self.update_progress()
+                else:
+                    self.update_progress_text(f"Enter API key first.")
             else:
-                self.update_progress_text(f"Enter API key first.")
-        else:
-            self.update_progress_text(f"No file selected.")
+                self.update_progress_text(f"No file selected.")
+        except:
+            self.update_progress_text(f"Something went wrong. Please run with admin and try again.")
 
         
     
