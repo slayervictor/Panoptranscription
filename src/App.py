@@ -90,15 +90,15 @@ class App(ctk.CTk):
                 self.selectedLanguage = "en"
                 self.disclaimerInstruction = "Only respond with the notes in LaTeX code. Do not respond with any natural language or formatting. "
                 self.generalInstruction = " If some topics are not accurate enough in the transcription, you are welcome to write general notes on the topic. Make sure to include the most important points from the transcription, and use the terms that are used in the transcription. "
-                self.continueInstruction = "Can you iterate on the following LaTeX math notes with information from this transcription? " + self.generalInstruction
-                self.startInstruction = "Can you create LaTeX math notes from this transcription? " + self.generalInstruction
+                self.continueInstruction = "Can you iterate on the following LaTeX notes with information from this transcription? " + self.generalInstruction
+                self.startInstruction = "Can you create LaTeX notes from this transcription? " + self.generalInstruction
             case "Danish":
                 self.saveToFile('LANGUAGE', "Danish")
                 self.selectedLanguage = "da"
-                self.disclaimerInstruction = "Kun responder med noterne i latex kode. Ikke responder med noget naturligt sprog eller formattering. "
+                self.disclaimerInstruction = "Kun responder med noterne i LaTeX kode. Ikke responder med noget naturligt sprog eller formattering. "
                 self.generalInstruction = "Hvis nogle emner ikke er akkurat nok i transkribtionen, må du gerne skrive generelle noter om emnet. Sørg for at inkludere de vigtigste punkter fra transskriptionen, og brug de termer, der anvendes i transskriptionen. "
-                self.continueInstruction = "Kan du iterere på følgende LaTeX-matematiknoter med information fra denne transkription? " + self.generalInstruction
-                self.startInstruction = "kan du lave latex matematik noter denne transkribtion? " + self.generalInstruction
+                self.continueInstruction = "Kan du iterere på følgende LaTeX-noter med information fra denne transkription? " + self.generalInstruction
+                self.startInstruction = "kan du lave LaTeX noter denne transkribtion? " + self.generalInstruction
 
     def dropdownChangeModel(self, modelSelection=None):
         if modelSelection == None:
