@@ -32,4 +32,4 @@
  * Windows
 
 # Disclaimer
-This is a project I made during university, and is therefore purely made for fun and educational purposes only. I am not liable for any direct, indirect, consequential, incidental, or special damages arising out of or in any way connected with the use/misuse or inability to use this software.
+This is a project I made during university, and is therefore purely made for fun and educational purposes only. I am not liable for any direct, indirect, consequential, incidental, or special damages arising out of or in any way connected with the use/misuse or inability to use this software. Every use of the program costs approximately $0.013 in OpenAI API usage money for you, so just beware of that.
