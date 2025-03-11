@@ -88,17 +88,32 @@ class App(ctk.CTk):
             case "English":
                 self.saveToFile('LANGUAGE', "English")
                 self.selectedLanguage = "en"
-                self.disclaimerInstruction = "Only respond with the notes in LaTeX code. Do not respond with any natural language or formatting. "
+                self.disclaimerInstruction = "Only respond with the notes in LaTeX code. Do not respond with any natural language or formatting. Make it detailed and add body text to each point. "
                 self.generalInstruction = " If some topics are not accurate enough in the transcription, you are welcome to write general notes on the topic. Make sure to include the most important points from the transcription, and use the terms that are used in the transcription. "
-                self.continueInstruction = "Can you iterate on the following LaTeX notes with information from this transcription? " + self.generalInstruction
+                self.continueInstruction = "Can you iterate on the following LaTeX notes with information from this transcription? Please add more detail based on the transcription. " + self.generalInstruction
                 self.startInstruction = "Can you create LaTeX notes from this transcription? " + self.generalInstruction
             case "Danish":
                 self.saveToFile('LANGUAGE', "Danish")
                 self.selectedLanguage = "da"
-                self.disclaimerInstruction = "Kun responder med noterne i LaTeX kode. Ikke responder med noget naturligt sprog eller formattering. "
-                self.generalInstruction = "Hvis nogle emner ikke er akkurat nok i transkribtionen, må du gerne skrive generelle noter om emnet. Sørg for at inkludere de vigtigste punkter fra transskriptionen, og brug de termer, der anvendes i transskriptionen. "
-                self.continueInstruction = "Kan du iterere på følgende LaTeX-noter med information fra denne transkription? " + self.generalInstruction
-                self.startInstruction = "kan du lave LaTeX noter denne transkribtion? " + self.generalInstruction
+                self.disclaimerInstruction = (
+                    "Kun responder med noterne i LaTeX-kode uden yderligere kommentarer eller formattering. " +
+                    "Noterne skal være detaljerede og indeholde sammenhængende brødtekst i stedet for blot punktlister. "
+                    "Sørg for at inkludere eksempler, udregninger og argumentation for de koncepter, der gennemgås. "
+                    "Noterne skal afspejle det faktiske indhold af forelæsningen, inklusive tavlenotater, slides og mundtlige forklaringer. "
+                    "Beskriv ikke blot, hvad forelæseren siger, men gengiv i stedet de relevante begreber, beviser og beregninger med præcise forklaringer. "
+                    "Når du inkluderer eksempler, skal de være tydeligt relateret til emnet og navngivet præcist i forhold til det pågældende koncept. "
+                    "Undgå generiske betegnelser som 'Stort eksempel' – brug i stedet beskrivende navne, såsom 'Eksempel: Konveksitet i funktioner' eller 'Eksempel: Laplacetransformation af polynomier'."
+                )
+                self.generalInstruction = (
+                    "Hvis nogle emner ikke er nøjagtige nok i transskriptionen, må du gerne supplere med generelle noter om emnet. "
+                    "Sørg dog altid for at inkludere de vigtigste punkter fra transskriptionen og brug de termer, der anvendes i materialet. "
+                    "Ved eksempler skal du vælge navne, der afspejler deres indhold og relevans for emnet."
+                )
+                self.continueInstruction = (
+                    "Kan du iterere på følgende LaTeX-noter med information fra denne transkription? "
+                    "Gerne tilføje mere detalje baseret på transkriptionen. Husk at skriv om de emner der bliver nævnt i den nye transkription. " + self.generalInstruction
+                )
+                self.startInstruction = "Kan du lave LaTeX-noter til denne transkription? " + self.generalInstruction
 
     def dropdownChangeModel(self, modelSelection=None):
         if modelSelection == None:
